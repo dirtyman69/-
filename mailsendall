@@ -1,0 +1,39 @@
+function isseisousin() {
+   var ui = SpreadsheetApp.getUi()
+  var al = ui.alert("確認：①タイトルの有無　②今月の目標％が合っているか　③差し込みの反映が適切か", ui.ButtonSet.YES_NO)
+  switch(al){
+    case ui.Button.YES:  
+  
+  const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sousintabu= sheet.getSheetByName('送信タブ');
+  const lastRow = sousintabu.getLastRow()
+  
+  for(let i = 2; i <= lastRow; i++){
+    
+    const fastName = sousintabu.getRange(i, 6).getValue(); //名
+    const lastName = sousintabu.getRange(i, 5).getValue(); //姓
+    const recipient = sousintabu.getRange(i, 3).getValue(); //生徒
+    const cc_mail = sousintabu.getRange(i, 4).getValue(); //保護者
+    const options = {cc:cc_mail}; //CCに入れる
+    const subject = sousintabu.getRange(2, 13).getValue() //タイトル
+    const mokuhyou = sousintabu.getRange(1, 7).getValue() //今月の目標
+    const shintyoku = Math.round(sousintabu.getRange(i, 8).getValue()); //現在の進捗
+    const nobiritu = Math.round(sousintabu.getRange(i, 9).getValue()); //どれだけ伸びたか
+    const shcoment = sousintabu.getRange(i, 10).getValue() //進捗別コメント
+    
+    
+    const text = sheet.getSheetByName('本文').getRange(1, 1).getValue(); //本文
+    const body = text
+    .replace(/{名}/g,fastName)
+    .replace(/{姓}/g,lastName)
+    .replace(/{今月の目標}/g,mokuhyou)
+    .replace(/{現在の進捗率}/g,shintyoku)
+    .replace(/{先月からどのくらい伸びたか}/g,nobiritu)
+    .replace(/{進捗別コメント}/g,shcoment)
+//    .replace(/{伸び率コメント}/g,nbcoment);
+    if(!sousintabu.getRange(i,11).getValue()){
+    GmailApp.sendEmail(recipient, subject, body, options)
+    }
+  }
+  }
+}
